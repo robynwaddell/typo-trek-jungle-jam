@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"> 
+ <head>  
+  <meta charset="utf-8">
+  <meta name="viewport" conent="width=device-width, initial-scale=1">
+  <meta name="author" content="Robyn Waddell">
+  <meta name="description" content="Robyn Waddell's Portfolio">
+  <meta name="keywords" content="web developer, front end, design">
+  <title>TypoTrek: Jungle Jam</title>
+  <link rel="stylesheet" href="./assets/style/index.css" media="all">
+  <link rel="stylesheet" href="./assets/style/reset.css" media="all">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="./assets/script/app.js" defer></script> 
+</head>
+ <body>
+    <main id="monkey-box">
+        <div class="container">
+        <div class="menu-bar">
+            <div class="restart"><input type="button" value="Restart" id="restart"></div>
+            <div><p> Time: <span id="timer">0</span> s</p></div>
+            <div><p> Hits: <span id="score">0</span></p></div>
+        </div>
+        <div class="play-area">
+            <p id="current-word"></p>
+            <input type="text" id="word-input" >
+        </div>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+              <span class="close"></span>
+              <h2>TypoTrek: JungleJam</h2>
+              <h3>How to Play</h3>
+              <p> As quickly as possible, type the word that appears in the brown box, try not to make any typos.</p>
+              <p>When you have successfully typed your word, you will get a point and the board will clear.</p> 
+              <p>Be careful though, you only have 99 seconds to type as many as you can!</p>
+              <input type="button" id="start" value="Start">
+            </div>
+        </div>
+          <audio id="game-music" src="./assets/img/running-through-the-jungle-155813.mp3"></audio>
+        </div>
+    </main>
+</body>
+</html>
