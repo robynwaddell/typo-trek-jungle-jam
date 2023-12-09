@@ -38,15 +38,20 @@ const words = [
     'rebel', 'amber', 'jacket', 'article', 'paradox', 'social', 'resort', 'escape'
 ];
 
+
+
 let timer;
-let countdown = 99;
+let countdown = 20;
 
 const timeDisplay = document.getElementById('timer');
 const wordInput = document.querySelector('#word-input');
 const chosenWord = document.getElementById('current-word');
 const startButton = document.getElementById('start');
 const restartButton = document.querySelector('#restart');
-var modal = document.getElementById('myModal');
+const modal = document.getElementById('myModal');
+const gameOverDialog = document.getElementById('gameOverDialog');
+const scoreboardDialog = document.getElementById('scoreboardDialog');
+const scoreboardContent = document.getElementById('scoreboardContent');
 
 function updateTimer() {
     countdown--;
@@ -54,9 +59,9 @@ function updateTimer() {
         gameTimeOver();
         endGame();
     } else {
-    timeDisplay.innerText = countdown;
-}}
-
+        timeDisplay.innerText = countdown;
+    }
+}
 
 function gameTimeOver() {
     clearInterval(timer);
@@ -78,15 +83,6 @@ const scoreDisplay = document.getElementById('score');
 
 function updateScore() {
     scoreDisplay.textContent = hitCount;
-
-    // let leaf = document.createElement('img');
-    // leaf.src = '../assets/img/monkey.png';
-    // leaf.classList.add('leaf');
-
-    // leaf.style.left = Math.random() * window.innerWidth + 'px';
-
-    // let leafcontainer = document.getElementById("monkey-box");
-    // leafcontainer.appendChild(leaf);
 }
 
 wordInput.addEventListener('keyup', function () {
@@ -102,17 +98,38 @@ wordInput.addEventListener('keyup', function () {
     }
 });
 
-
-
 function closeModal() {
     modal.style.display = 'none';
-    modal.setAttribute('aria-hidden', 'true'); 
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+function openGameOverDialog() {
+    const gameScoreText = document.getElementById('game-score');
+    gameScoreText.textContent = `Your Score: ${hitCount} hits`;
+    gameOverDialog.style.display = 'block';
+}
+
+function openScoreboard() {
+    scoreboardContent.innerHTML = ''; 
+
+    scores.forEach((score, index) => {
+        const scoreItem = document.createElement('p');
+        scoreItem.textContent = `${index + 1}. Hits: ${score.hits}, Percentage: ${score.percentage}% - ${score.date}`;
+        scoreboardContent.appendChild(scoreItem);
+    });
+
+    scoreboardDialog.style.display = 'block';
+}
+
+function closeDialog(dialogId) {
+    const dialog = document.getElementById(dialogId);
+    dialog.style.display = 'none';
 }
 
 function start() {
     closeModal();
     clearInterval(timer);
-    countdown = 99;
+    countdown = 20;
     updateDisplay();
     timer = setInterval(function () {
         --countdown;
@@ -129,20 +146,30 @@ function start() {
 startButton.addEventListener('click', start);
 
 function restart() {
-    modal.style.display = 'block';
-    modal.removeAttribute('aria-hidden');    
+    clearInterval(timer);
+    countdown = 20;
+    updateDisplay();
+    timer = setInterval(function () {
+        --countdown;
+        if (countdown < 0) endGame();
+        else updateDisplay();
+    }, 1000);
+    displayNewWord(shuffled.pop());
+    wordInput.value = '';
+    wordInput.focus();
     let gameMusic = document.getElementById('game-music');
-    gameMusic.pause();
-    gameMusic.currentTime = 0;
-    wordInput.disabled = false;
+    gameMusic.play();
+    hitCount = 0;
+    updateScore();
 }
 
 restartButton.addEventListener('click', restart);
-const scores = [];
+const scores = JSON.parse(localStorage.getItem('scores')) || [];
 
 function endGame() {
-    const newScore = new Score(new Date().toString(), hitCount, (hitCount / 120) * 100);
+    const newScore = { date: new Date().toString(), hits: hitCount, percentage: (hitCount / 120) * 100 };
     scores.push(newScore);
+    updateScoreboard();
 
     clearInterval(timer);
 
@@ -151,10 +178,49 @@ function endGame() {
 
     hitCount = 0;
     wordInput.disabled = true;
+
+    openGameOverDialog();
 }
 
-window.onload = function(){
+document.getElementById('scoreboard').addEventListener('click', openScoreboard);
+
+document.getElementById('start-again').addEventListener('click', function () {
+    closeDialog('gameOverDialog');
+    start();
+    hitCount = 0;
+    updateScore();
+    wordInput.disabled = false;
+});
+
+document.getElementById('close-scoreboard').addEventListener('click', function () {
+    closeDialog('scoreboardDialog');
+});
+
+window.onload = function () {
     modal.style.display = 'block';
-    modal.removeAttribute('aria-hidden'); 
+    modal.removeAttribute('aria-hidden');
 };
 
+
+
+function updateScoreboard() {
+    scores.sort((a, b) => b.hits - a.hits);
+
+    scores.splice(9);
+
+    localStorage.setItem('scores', JSON.stringify(scores));
+
+    const scoreboard = document.getElementById('scoreboard');
+    scoreboard.innerHTML = '<h2>Top 9 Scores</h2>';
+    if (scores.length > 0) {
+      scores.forEach((score, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1}. Hits: ${score.hits}, Percentage: ${score.percentage}% - ${score.date}`;
+        scoreboard.appendChild(listItem);
+      });
+    } else {
+      scoreboard.innerHTML = '<p>No games have been played yet.</p>';
+    }
+}
+
+updateScoreboard();
